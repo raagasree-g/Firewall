@@ -1,0 +1,33 @@
+# VeriLLM Stage 3 Verification Configuration
+
+seed: 42
+
+data:
+  processed_dir: "datasets/processed"
+  fever_path: "datasets/processed/FEVER/fever_normalized.jsonl"
+  averitec_path: "datasets/processed/AVeriTeC/averitec_normalized.jsonl"
+
+splits:
+  fever_val_size: 0.2
+  stratified: true
+
+tfidf:
+  ngram_range: [1, 2]
+  max_features: 25000
+  sublinear_tf: true
+  min_df: 2
+
+logistic_regression:
+  C: 1.0
+  max_iter: 1000
+  class_weight: "balanced"
+
+linear_svm:
+  C: 1.0
+  max_iter: 2000
+  class_weight: "balanced"
+
+nli_model:
+  name: "cross-encoder/nli-distilroberta-base"
+  batch_size: 32
+  max_length: 256
