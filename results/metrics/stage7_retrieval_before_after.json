@@ -1,0 +1,88 @@
+{
+  "FEVER": {
+    "dataset": "FEVER",
+    "split": "validation",
+    "seed": 42,
+    "sample_count": 200,
+    "methodology": "Exact whitespace-normalized gold-evidence hit in a held-out split corpus.",
+    "original": {
+      "evaluation_count": 200,
+      "corpus_size": 29090,
+      "evidence_hit_definition": "A hit occurs when an exact whitespace-normalized gold evidence string is returned in the top K results.",
+      "recall_at_k": {
+        "1": 0.015,
+        "3": 0.06,
+        "5": 0.105,
+        "10": 0.175
+      },
+      "evidence_hit_rate": 0.175,
+      "retrieval_failure_rate": 0.825
+    },
+    "improved": {
+      "evaluation_count": 200,
+      "corpus_size": 29090,
+      "evidence_hit_definition": "A hit occurs when an exact whitespace-normalized gold evidence string is returned in the top K results.",
+      "recall_at_k": {
+        "1": 0.025,
+        "3": 0.09,
+        "5": 0.14,
+        "10": 0.195
+      },
+      "evidence_hit_rate": 0.195,
+      "retrieval_failure_rate": 0.805
+    },
+    "absolute_delta": {
+      "recall_at_k": {
+        "1": 0.01,
+        "3": 0.03,
+        "5": 0.035,
+        "10": 0.02
+      },
+      "evidence_hit_rate": 0.02,
+      "retrieval_failure_rate": -0.02
+    }
+  },
+  "AVeriTeC": {
+    "dataset": "AVeriTeC",
+    "split": "dev",
+    "seed": 42,
+    "sample_count": 200,
+    "methodology": "Exact whitespace-normalized gold-evidence hit in a held-out split corpus.",
+    "original": {
+      "evaluation_count": 200,
+      "corpus_size": 500,
+      "evidence_hit_definition": "A hit occurs when an exact whitespace-normalized gold evidence string is returned in the top K results.",
+      "recall_at_k": {
+        "1": 0.815,
+        "3": 0.915,
+        "5": 0.955,
+        "10": 0.97
+      },
+      "evidence_hit_rate": 0.97,
+      "retrieval_failure_rate": 0.03
+    },
+    "improved": {
+      "evaluation_count": 200,
+      "corpus_size": 500,
+      "evidence_hit_definition": "A hit occurs when an exact whitespace-normalized gold evidence string is returned in the top K results.",
+      "recall_at_k": {
+        "1": 0.78,
+        "3": 0.9,
+        "5": 0.945,
+        "10": 0.985
+      },
+      "evidence_hit_rate": 0.985,
+      "retrieval_failure_rate": 0.015
+    },
+    "absolute_delta": {
+      "recall_at_k": {
+        "1": -0.035,
+        "3": -0.015,
+        "5": -0.01,
+        "10": 0.015
+      },
+      "evidence_hit_rate": 0.015,
+      "retrieval_failure_rate": -0.015
+    }
+  }
+}

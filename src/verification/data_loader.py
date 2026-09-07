@@ -14,6 +14,9 @@ from sklearn.model_selection import train_test_split
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_ROOT = os.path.abspath(os.path.join(SCRIPT_DIR, "..", ".."))
 PROCESSED_DIR = os.path.join(PROJECT_ROOT, "datasets", "processed")
+# AVeriTeC also preserves its source-specific CONFLICTING_EVIDENCE label.
+# NLI still emits only the three operational VeriLLM verdicts.
+VALID_LABELS = {"SUPPORTED", "CONTRADICTED", "UNSUPPORTED", "CONFLICTING_EVIDENCE"}
 
 
 def format_model_input(claim: str, evidence: str) -> str:
@@ -21,6 +24,13 @@ def format_model_input(claim: str, evidence: str) -> str:
     claim_str = (claim or "").strip()
     ev_str = (evidence or "").strip()
     return f"Claim: {claim_str} [SEP] Evidence: {ev_str}"
+
+
+def validate_label(label: str) -> str:
+    """Validate the shared VeriLLM label vocabulary before model use."""
+    if label not in VALID_LABELS:
+        raise ValueError(f"Unsupported verification label: {label!r}")
+    return label
 
 
 def load_fever_data(processed_dir: str = PROCESSED_DIR, val_size: float = 0.2, seed: int = 42) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
@@ -34,6 +44,7 @@ def load_fever_data(processed_dir: str = PROCESSED_DIR, val_size: float = 0.2, s
         for line in f:
             if line.strip():
                 item = json.loads(line)
+                validate_label(item.get("label"))
                 item["formatted_input"] = format_model_input(item.get("claim"), item.get("evidence"))
                 records.append(item)
 
@@ -56,6 +67,7 @@ def load_averitec_data(processed_dir: str = PROCESSED_DIR) -> Tuple[List[Dict[st
         for line in f:
             if line.strip():
                 item = json.loads(line)
+                validate_label(item.get("label"))
                 item["formatted_input"] = format_model_input(item.get("claim"), item.get("evidence"))
                 split = item.get("metadata", {}).get("split")
                 if split == "train":

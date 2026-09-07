@@ -1,0 +1,258 @@
+[
+  {
+    "synthetic": true,
+    "expected_category": "direct_contradiction",
+    "expected_verdict": "CONTRADICTED",
+    "model_prediction": "SUPPORTED",
+    "verification_output": {
+      "claim_id": "claim_001",
+      "claim": "Paris is the capital of Germany.",
+      "verdict": "SUPPORTED",
+      "confidence": 0.43347610689185156,
+      "evidence": [
+        {
+          "evidence_id": "direct_contradiction",
+          "evidence": "France's capital is Paris; Germany's capital is Berlin.",
+          "score": 0.6419493553306731
+        }
+      ],
+      "retrieval_score": 0.6419493553306731,
+      "explanation": "The retrieved evidence supports this claim.",
+      "hallucination_type": "UNKNOWN",
+      "severity": "LOW",
+      "severity_reasons": [
+        "Retrieval relevance is strong."
+      ],
+      "needs_human_review": true,
+      "review_reasons": [
+        "Low NLI model confidence."
+      ]
+    },
+    "pass": false
+  },
+  {
+    "synthetic": true,
+    "expected_category": "numerical_inconsistency",
+    "expected_verdict": "CONTRADICTED",
+    "model_prediction": "CONTRADICTED",
+    "verification_output": {
+      "claim_id": "claim_001",
+      "claim": "The report contains 12 errors.",
+      "verdict": "CONTRADICTED",
+      "confidence": 0.9228626125215555,
+      "evidence": [
+        {
+          "evidence_id": "numerical_inconsistency",
+          "evidence": "The report contains 3 errors.",
+          "score": 0.9258200997725518
+        }
+      ],
+      "retrieval_score": 0.9258200997725518,
+      "explanation": "The retrieved evidence contradicts this claim.",
+      "hallucination_type": "NUMERICAL_ERROR",
+      "severity": "HIGH",
+      "severity_reasons": [
+        "Retrieved evidence contradicts the claim.",
+        "NUMERICAL_ERROR can materially change interpretation.",
+        "The verifier assigned high model confidence.",
+        "Retrieval relevance is strong."
+      ],
+      "needs_human_review": true,
+      "review_reasons": [
+        "High severity requires review."
+      ]
+    },
+    "pass": true
+  },
+  {
+    "synthetic": true,
+    "expected_category": "temporal_inconsistency",
+    "expected_verdict": "CONTRADICTED",
+    "model_prediction": "CONTRADICTED",
+    "verification_output": {
+      "claim_id": "claim_001",
+      "claim": "The treaty was signed in 2020.",
+      "verdict": "CONTRADICTED",
+      "confidence": 0.8966663009972577,
+      "evidence": [
+        {
+          "evidence_id": "temporal_inconsistency",
+          "evidence": "The treaty was signed in 2018.",
+          "score": 0.9045340337332909
+        }
+      ],
+      "retrieval_score": 0.9045340337332909,
+      "explanation": "The retrieved evidence contradicts this claim.",
+      "hallucination_type": "NUMERICAL_ERROR",
+      "severity": "HIGH",
+      "severity_reasons": [
+        "Retrieved evidence contradicts the claim.",
+        "NUMERICAL_ERROR can materially change interpretation.",
+        "The verifier assigned high model confidence.",
+        "Retrieval relevance is strong."
+      ],
+      "needs_human_review": true,
+      "review_reasons": [
+        "High severity requires review."
+      ]
+    },
+    "pass": true
+  },
+  {
+    "synthetic": true,
+    "expected_category": "entity_confusion",
+    "expected_verdict": "CONTRADICTED",
+    "model_prediction": "CONTRADICTED",
+    "verification_output": {
+      "claim_id": "claim_001",
+      "claim": "Marie Curie wrote Hamlet.",
+      "verdict": "CONTRADICTED",
+      "confidence": 0.30087173972595016,
+      "evidence": [
+        {
+          "evidence_id": "entity_confusion",
+          "evidence": "Hamlet was written by William Shakespeare.",
+          "score": 0.30151134457776363
+        }
+      ],
+      "retrieval_score": 0.30151134457776363,
+      "explanation": "The retrieved evidence contradicts this claim.",
+      "hallucination_type": "OTHER",
+      "severity": "MEDIUM",
+      "severity_reasons": [
+        "Retrieved evidence contradicts the claim."
+      ],
+      "needs_human_review": true,
+      "review_reasons": [
+        "Low NLI model confidence."
+      ]
+    },
+    "pass": true
+  },
+  {
+    "synthetic": true,
+    "expected_category": "unsupported_claim",
+    "expected_verdict": "UNSUPPORTED",
+    "model_prediction": "CONTRADICTED",
+    "verification_output": {
+      "claim_id": "claim_001",
+      "claim": "Europa has confirmed oceans of liquid chocolate.",
+      "verdict": "CONTRADICTED",
+      "confidence": 0.46637494067293367,
+      "evidence": [
+        {
+          "evidence_id": "unsupported_claim",
+          "evidence": "Europa is a moon of Jupiter.",
+          "score": 0.4714045207910317
+        }
+      ],
+      "retrieval_score": 0.4714045207910317,
+      "explanation": "The retrieved evidence contradicts this claim.",
+      "hallucination_type": "OTHER",
+      "severity": "MEDIUM",
+      "severity_reasons": [
+        "Retrieved evidence contradicts the claim."
+      ],
+      "needs_human_review": true,
+      "review_reasons": [
+        "Low NLI model confidence."
+      ]
+    },
+    "pass": false
+  },
+  {
+    "synthetic": true,
+    "expected_category": "source_mismatch",
+    "expected_verdict": "UNSUPPORTED",
+    "model_prediction": "UNSUPPORTED",
+    "verification_output": {
+      "claim_id": "claim_001",
+      "claim": "The weather report proves the company earned $10 million.",
+      "verdict": "UNSUPPORTED",
+      "confidence": 0.41402864069386985,
+      "evidence": [
+        {
+          "evidence_id": "source_mismatch",
+          "evidence": "The weather report states it will rain tomorrow.",
+          "score": 0.5609591635423028
+        }
+      ],
+      "retrieval_score": 0.5609591635423028,
+      "explanation": "No sufficiently relevant evidence was retrieved to verify this claim.",
+      "hallucination_type": "UNKNOWN",
+      "severity": "MEDIUM",
+      "severity_reasons": [
+        "Retrieval relevance is strong."
+      ],
+      "needs_human_review": true,
+      "review_reasons": [
+        "Low NLI model confidence."
+      ]
+    },
+    "pass": true
+  },
+  {
+    "synthetic": true,
+    "expected_category": "context_misinterpretation",
+    "expected_verdict": "CONTRADICTED",
+    "model_prediction": "CONTRADICTED",
+    "verification_output": {
+      "claim_id": "claim_001",
+      "claim": "The study proves every patient recovered.",
+      "verdict": "CONTRADICTED",
+      "confidence": 0.2966406190031726,
+      "evidence": [
+        {
+          "evidence_id": "context_misinterpretation",
+          "evidence": "The study reports that 60% of patients recovered.",
+          "score": 0.5163977794943223
+        }
+      ],
+      "retrieval_score": 0.5163977794943223,
+      "explanation": "The retrieved evidence contradicts this claim.",
+      "hallucination_type": "NUMERICAL_ERROR",
+      "severity": "HIGH",
+      "severity_reasons": [
+        "Retrieved evidence contradicts the claim.",
+        "NUMERICAL_ERROR can materially change interpretation.",
+        "Retrieval relevance is strong."
+      ],
+      "needs_human_review": true,
+      "review_reasons": [
+        "Low NLI model confidence.",
+        "High severity requires review."
+      ]
+    },
+    "pass": true
+  },
+  {
+    "synthetic": true,
+    "expected_category": "clean_supported_claim",
+    "expected_verdict": "SUPPORTED",
+    "model_prediction": "SUPPORTED",
+    "verification_output": {
+      "claim_id": "claim_001",
+      "claim": "Water freezes at 0 degrees Celsius at standard pressure.",
+      "verdict": "SUPPORTED",
+      "confidence": 0.8709713870675663,
+      "evidence": [
+        {
+          "evidence_id": "clean_supported_claim",
+          "evidence": "At standard atmospheric pressure, water freezes at 0 degrees Celsius.",
+          "score": 0.8809769658210599
+        }
+      ],
+      "retrieval_score": 0.8809769658210599,
+      "explanation": "The retrieved evidence supports this claim.",
+      "hallucination_type": "UNKNOWN",
+      "severity": "LOW",
+      "severity_reasons": [
+        "The verifier assigned high model confidence.",
+        "Retrieval relevance is strong."
+      ],
+      "needs_human_review": false,
+      "review_reasons": []
+    },
+    "pass": true
+  }
+]

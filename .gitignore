@@ -2,6 +2,7 @@
 __pycache__/
 *.py[cod]
 *$py.class
+.pytest_cache/
 
 # C extensions
 *.so
@@ -46,10 +47,17 @@ models/**/*.onnx
 # Logs & Results
 logs/*
 !logs/.gitkeep
+*.log
 results/predictions/*
 results/metrics/*
 results/comparisons/*
 results/error_analysis/*
+# Versioned Stage 7 evaluation evidence; other generated results remain local.
+!results/predictions/Stage7_*.jsonl
+!results/metrics/Stage7_*_metrics.json
+!results/metrics/stage7_retrieval_before_after.json
+!results/metrics/stage7_retrieval_nli_before_after.json
+!results/metrics/pipeline_v0.2_baseline.json
 
 # IDEs & Editors
 .idea/

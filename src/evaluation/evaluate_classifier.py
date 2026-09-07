@@ -34,9 +34,14 @@ def evaluate_predictions(
     y_pred: List[str],
     experiment_name: str,
     records: List[Dict[str, Any]] = None,
-    save_artifacts: bool = True
+    save_artifacts: bool = True,
+    prediction_details: List[Dict[str, Any]] = None,
 ) -> Dict[str, Any]:
     """Compute metrics, export prediction outputs, and render confusion matrix."""
+    if len(y_true) != len(y_pred):
+        raise ValueError("y_true and y_pred must contain the same number of items")
+    if prediction_details is not None and len(prediction_details) != len(y_pred):
+        raise ValueError("prediction_details must align one-to-one with y_pred")
     labels = sorted(list(set(y_true) | set(y_pred)))
     
     acc = float(accuracy_score(y_true, y_pred))
@@ -99,6 +104,11 @@ def evaluate_predictions(
                         "predicted_label": y_pred[idx],
                         "source_dataset": r.get("source_dataset")
                     }
+                    if prediction_details is not None:
+                        out.update({
+                            "nli_label": prediction_details[idx].get("nli_label"),
+                            "confidence": prediction_details[idx].get("confidence"),
+                        })
                     f.write(json.dumps(out, ensure_ascii=False) + "\n")
                     
     return metrics
@@ -117,6 +127,11 @@ def update_model_comparison_csv(all_metrics: List[Dict[str, Any]]):
             "macro_f1": m["macro_f1"],
             "weighted_f1": m["weighted_f1"]
         })
+    if os.path.exists(csv_file):
+        existing = pd.read_csv(csv_file).to_dict("records")
+        replacements = {row["experiment_name"]: row for row in rows}
+        rows = [replacements.pop(row["experiment_name"], row) for row in existing]
+        rows.extend(replacements.values())
     df = pd.DataFrame(rows)
     df.to_csv(csv_file, index=False)
     print(f"[OK] Updated model comparison table: {csv_file}")

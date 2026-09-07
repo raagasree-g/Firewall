@@ -1,0 +1,270 @@
+[
+  {
+    "synthetic": true,
+    "case_id": "R01",
+    "category": "direct support",
+    "claim": "Water freezes at 0 degrees Celsius at standard pressure.",
+    "input_evidence": [
+      "At standard atmospheric pressure, water freezes at 0 degrees Celsius."
+    ],
+    "expected_verdict": "SUPPORTED",
+    "actual_verdict": "SUPPORTED",
+    "confidence": 0.8226003937503683,
+    "retrieval_information": [
+      {
+        "evidence_id": "R01_1",
+        "evidence": "At standard atmospheric pressure, water freezes at 0 degrees Celsius.",
+        "score": 0.8320502943378438
+      }
+    ],
+    "explanation": "The retrieved evidence supports this claim.",
+    "pass": true
+  },
+  {
+    "synthetic": true,
+    "case_id": "R02",
+    "category": "direct contradiction",
+    "claim": "Paris is the capital of Germany.",
+    "input_evidence": [
+      "France's capital is Paris; Germany's capital is Berlin."
+    ],
+    "expected_verdict": "CONTRADICTED",
+    "actual_verdict": "CONTRADICTED",
+    "confidence": 0.4179598233820213,
+    "retrieval_information": [
+      {
+        "evidence_id": "R02_1",
+        "evidence": "France's capital is Paris; Germany's capital is Berlin.",
+        "score": 0.6189707688805817
+      }
+    ],
+    "explanation": "The retrieved evidence contradicts this claim.",
+    "pass": true
+  },
+  {
+    "synthetic": true,
+    "case_id": "R03",
+    "category": "unsupported claim",
+    "claim": "Europa has confirmed oceans of liquid chocolate.",
+    "input_evidence": [
+      "Europa is a moon of Jupiter."
+    ],
+    "expected_verdict": "UNSUPPORTED",
+    "actual_verdict": "UNSUPPORTED",
+    "confidence": 0.0,
+    "retrieval_information": [
+      {
+        "evidence_id": "R03_1",
+        "evidence": "Europa is a moon of Jupiter.",
+        "score": 0.447213595499958
+      }
+    ],
+    "explanation": "No sufficiently relevant evidence was retrieved to verify this claim.",
+    "pass": true
+  },
+  {
+    "synthetic": true,
+    "case_id": "R04",
+    "category": "weakly related evidence",
+    "claim": "The company earned $10 million in 2024.",
+    "input_evidence": [
+      "The company published a weather forecast in 2024."
+    ],
+    "expected_verdict": "UNSUPPORTED",
+    "actual_verdict": "UNSUPPORTED",
+    "confidence": 0.0,
+    "retrieval_information": [
+      {
+        "evidence_id": "R04_1",
+        "evidence": "The company published a weather forecast in 2024.",
+        "score": 0.4714045207910317
+      }
+    ],
+    "explanation": "No sufficiently relevant evidence was retrieved to verify this claim.",
+    "pass": true
+  },
+  {
+    "synthetic": true,
+    "case_id": "R05",
+    "category": "irrelevant evidence",
+    "claim": "The company earned $10 million.",
+    "input_evidence": [
+      "Penguins live in the Southern Hemisphere."
+    ],
+    "expected_verdict": "UNSUPPORTED",
+    "actual_verdict": "UNSUPPORTED",
+    "confidence": 0.0,
+    "retrieval_information": [
+      {
+        "evidence_id": "R05_1",
+        "evidence": "Penguins live in the Southern Hemisphere.",
+        "score": 0.0
+      }
+    ],
+    "explanation": "No sufficiently relevant evidence was retrieved to verify this claim.",
+    "pass": true
+  },
+  {
+    "synthetic": true,
+    "case_id": "R06",
+    "category": "conflicting evidence",
+    "claim": "The report contains 12 errors.",
+    "input_evidence": [
+      "The report contains 12 errors.",
+      "The report contains 3 errors."
+    ],
+    "expected_verdict": "UNSUPPORTED",
+    "actual_verdict": "UNSUPPORTED",
+    "confidence": 0.9926337599754333,
+    "retrieval_information": [
+      {
+        "evidence_id": "R06_1",
+        "evidence": "The report contains 12 errors.",
+        "score": 1.0
+      },
+      {
+        "evidence_id": "R06_2",
+        "evidence": "The report contains 3 errors.",
+        "score": 0.5193879933129156
+      }
+    ],
+    "explanation": "Retrieved evidence gives conflicting verification signals; the claim remains unsupported.",
+    "pass": true
+  },
+  {
+    "synthetic": true,
+    "case_id": "R07",
+    "category": "numerical mismatch",
+    "claim": "The report contains 12 errors.",
+    "input_evidence": [
+      "The report contains 3 errors."
+    ],
+    "expected_verdict": "CONTRADICTED",
+    "actual_verdict": "CONTRADICTED",
+    "confidence": 0.8915699868681667,
+    "retrieval_information": [
+      {
+        "evidence_id": "R07_1",
+        "evidence": "The report contains 3 errors.",
+        "score": 0.894427190999916
+      }
+    ],
+    "explanation": "The retrieved evidence contradicts this claim.",
+    "pass": true
+  },
+  {
+    "synthetic": true,
+    "case_id": "R08",
+    "category": "temporal mismatch",
+    "claim": "The treaty was signed in 2020.",
+    "input_evidence": [
+      "The treaty was signed in 2018."
+    ],
+    "expected_verdict": "CONTRADICTED",
+    "actual_verdict": "CONTRADICTED",
+    "confidence": 0.7678591454507421,
+    "retrieval_information": [
+      {
+        "evidence_id": "R08_1",
+        "evidence": "The treaty was signed in 2018.",
+        "score": 0.7745966692414836
+      }
+    ],
+    "explanation": "The retrieved evidence contradicts this claim.",
+    "pass": true
+  },
+  {
+    "synthetic": true,
+    "case_id": "R09",
+    "category": "entity confusion",
+    "claim": "Marie Curie wrote Hamlet.",
+    "input_evidence": [
+      "Marie Curie did not write Hamlet. Hamlet was written by William Shakespeare."
+    ],
+    "expected_verdict": "CONTRADICTED",
+    "actual_verdict": "CONTRADICTED",
+    "confidence": 0.5456622501772173,
+    "retrieval_information": [
+      {
+        "evidence_id": "R09_1",
+        "evidence": "Marie Curie did not write Hamlet. Hamlet was written by William Shakespeare.",
+        "score": 0.5551513882293178
+      }
+    ],
+    "explanation": "The retrieved evidence contradicts this claim.",
+    "pass": true
+  },
+  {
+    "synthetic": true,
+    "case_id": "R10",
+    "category": "exact duplicate evidence",
+    "claim": "Water freezes at 0 degrees Celsius at standard pressure.",
+    "input_evidence": [
+      "At standard atmospheric pressure, water freezes at 0 degrees Celsius.",
+      "At standard atmospheric pressure, water freezes at 0 degrees Celsius."
+    ],
+    "expected_verdict": "SUPPORTED",
+    "actual_verdict": "SUPPORTED",
+    "confidence": 0.8226003937503683,
+    "retrieval_information": [
+      {
+        "evidence_id": "R10_1",
+        "evidence": "At standard atmospheric pressure, water freezes at 0 degrees Celsius.",
+        "score": 0.8320502943378438
+      },
+      {
+        "evidence_id": "R10_2",
+        "evidence": "At standard atmospheric pressure, water freezes at 0 degrees Celsius.",
+        "score": 0.8320502943378438
+      }
+    ],
+    "explanation": "The retrieved evidence supports this claim.",
+    "pass": true
+  },
+  {
+    "synthetic": true,
+    "case_id": "R11",
+    "category": "multiple evidence passages",
+    "claim": "The museum opened in 2010.",
+    "input_evidence": [
+      "The museum opened in 2010 after construction completed.",
+      "The museum has a cafe and a library."
+    ],
+    "expected_verdict": "SUPPORTED",
+    "actual_verdict": "SUPPORTED",
+    "confidence": 0.7232500073678834,
+    "retrieval_information": [
+      {
+        "evidence_id": "R11_1",
+        "evidence": "The museum opened in 2010 after construction completed.",
+        "score": 0.7278442126445421
+      },
+      {
+        "evidence_id": "R11_2",
+        "evidence": "The museum has a cafe and a library.",
+        "score": 0.11234277891542777
+      }
+    ],
+    "explanation": "The retrieved evidence supports this claim.",
+    "pass": true
+  },
+  {
+    "synthetic": true,
+    "case_id": "R12",
+    "category": "empty/no evidence",
+    "claim": "A newly discovered planet has rings.",
+    "input_evidence": [],
+    "expected_verdict": "UNSUPPORTED",
+    "actual_verdict": "UNSUPPORTED",
+    "confidence": 0.0,
+    "retrieval_information": [
+      {
+        "evidence_id": "R12_irrelevant",
+        "evidence": "Unrelated background information.",
+        "score": 0.0
+      }
+    ],
+    "explanation": "No sufficiently relevant evidence was retrieved to verify this claim.",
+    "pass": true
+  }
+]

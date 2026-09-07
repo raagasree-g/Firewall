@@ -98,7 +98,7 @@ VeriLLM utilizes four premier fact verification and hallucination detection benc
 
 | Dataset | Split / Files | Description & Schema Focus |
 | :--- | :--- | :--- |
-| **AVeriTeC** | `train.json`, `dev.json`, `test.json` | Real-world complex claims requiring multi-step question decomposition and web evidence. |
+| **AVeriTeC** | `train.json`, `dev.json`, `test.json` | Real-world complex claims requiring multi-step question decomposition and web evidence. Stage 7 bounded evaluation uses dev only; test data is untouched. |
 | **FEVER** | `train.jsonl` | Large-scale claim verification against Wikipedia ground truth. |
 | **HaluEval** | `qa_data.json`, `summarization_data.json`, `dialogue_data.json`, `general_data.json` | Comprehensive LLM hallucination benchmark spanning QA, Dialogue, Summarization, and General query responses. |
 | **RAGTruth** | `response.jsonl`, `source_info.jsonl` | Fine-grained RAG hallucination dataset with word/span-level annotations across multiple models and temperatures. |
@@ -155,7 +155,7 @@ VeriLLM/
 ├── src/                      # Core modular Python package
 │   ├── preprocessing/        # Cleaners, tokenizers, schema normalizers
 │   ├── claim_extraction/     # Claim extraction & decomposition
-│   ├── retrieval/            # Vector index & BM25 retrieval
+│   ├── retrieval/            # Offline TF-IDF evidence retrieval
 │   ├── verification/         # NLI & ML classifiers
 │   ├── scoring/              # Reliability & severity formulas
 │   ├── evaluation/           # Metrics calculation
@@ -181,7 +181,39 @@ VeriLLM/
 - [x] Environment & directory setup
 - [x] Raw dataset organization & extraction
 - [x] Schema & integrity validation script
-- [ ] Exploratory Data Analysis & Schema Normalization (Notebook 01)
-- [ ] Baseline ML / NLI Classifier Development
-- [ ] RAG Evidence Retrieval Integration
-- [ ] Metric Calculation Engine & Dashboard UI
+- [x] Exploratory data analysis and schema normalization
+- [x] Baseline ML / NLI classifier development
+- [x] Offline retrieval, hallucination taxonomy, severity and reliability scoring
+- [x] Model comparison and regression monitoring
+- [x] Stage 7 retrieval/NLI robustness evaluation
+
+## Running locally
+
+Activate the virtual environment, then run the test suite:
+
+```powershell
+python -m pytest -v
+```
+
+Run the Stage 7 reproducibility evaluations (uses the locally cached
+`cross-encoder/nli-distilroberta-base` model and does not use AVeriTeC test
+data):
+
+```powershell
+python scripts/run_adversarial_evaluation.py
+python scripts/run_stage7_evaluations.py
+```
+
+The default pipeline in `src/verillm_pipeline.py` extracts sentence claims,
+retrieves evidence using robust TF-IDF, gates evidence below relevance 0.50,
+verifies usable evidence with NLI, and returns explanations, taxonomy labels,
+severity, review flags, and reliability-oriented outputs.
+
+## Current limitations
+
+The retriever is lexical and the NLI model is frozen. The 0.50 relevance gate
+prevents weak evidence from deciding a verdict but is conservative on the
+broad-corpus bounded evaluation. Stage 7's controlled robustness suite is a
+synthetic framework check, not an external benchmark. See
+`docs/architecture/retrieval_nli_robustness.md` for measured results and
+per-class limitations.

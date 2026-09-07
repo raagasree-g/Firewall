@@ -1,0 +1,5 @@
+import json
+from pathlib import Path
+ROOT=Path(__file__).resolve().parents[1]
+baseline={"pipeline_version":"v0.2-stage7","claim_extraction_version":"sentence_extractor_v1","retrieval_version":"robust_tfidf_v0.2","nli_model":"cross-encoder/nli-distilroberta-base","nli_mapping":{"ENTAILMENT":"SUPPORTED","CONTRADICTION":"CONTRADICTED","NEUTRAL":"UNSUPPORTED"},"relevance_threshold":0.5,"conflict_handling":"Return UNSUPPORTED and require review when usable evidence produces both SUPPORTED and CONTRADICTED NLI verdicts; retain the explicit mutually-exclusive capital-relation guard.","taxonomy_version":"v1","severity_version":"v1","configuration_versions":{"verification_config":"stage3_v1","retrieval_configuration":"robust_tfidf_v0.2","pipeline_configuration":"stage7"},"evaluation_seeds":{"bounded_retrieval":42,"bounded_retrieval_nli":42},"evaluation_datasets":{"FEVER":{"split":"validation","samples":200},"AVeriTeC":{"split":"dev","samples":200,"test_split_used":False}}}
+(ROOT/"results/metrics/pipeline_v0.2_baseline.json").write_text(json.dumps(baseline,indent=2),encoding="utf-8")

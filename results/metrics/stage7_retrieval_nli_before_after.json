@@ -1,0 +1,274 @@
+{
+  "FEVER": {
+    "dataset": "FEVER",
+    "split": "validation",
+    "seed": 42,
+    "sample_count": 200,
+    "methodology": "Top-1 retrieval followed by the Stage 3 NLI verifier; improved run applies the production 0.50 relevance gate.",
+    "original": {
+      "experiment_name": "Stage7_FEVER_Original_Retrieval_NLI",
+      "accuracy": 0.24,
+      "macro_precision": 0.1623,
+      "macro_recall": 0.3471,
+      "macro_f1": 0.2211,
+      "weighted_f1": 0.1527,
+      "per_class_metrics": {
+        "CONTRADICTED": {
+          "precision": 0.2778,
+          "recall": 0.5814,
+          "f1": 0.3759,
+          "support": 43
+        },
+        "SUPPORTED": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 107
+        },
+        "UNSUPPORTED": {
+          "precision": 0.2091,
+          "recall": 0.46,
+          "f1": 0.2875,
+          "support": 50
+        }
+      },
+      "confusion_matrix": [
+        [
+          25,
+          0,
+          18
+        ],
+        [
+          38,
+          0,
+          69
+        ],
+        [
+          27,
+          0,
+          23
+        ]
+      ],
+      "labels": [
+        "CONTRADICTED",
+        "SUPPORTED",
+        "UNSUPPORTED"
+      ],
+      "retrieval_protocol": "Top-1 retrieved evidence is passed to the existing NLI verifier.",
+      "relevance_threshold": null,
+      "gated_to_unsupported": 0
+    },
+    "improved": {
+      "experiment_name": "Stage7_FEVER_Improved_Retrieval_NLI",
+      "accuracy": 0.25,
+      "macro_precision": 0.0833,
+      "macro_recall": 0.3333,
+      "macro_f1": 0.1333,
+      "weighted_f1": 0.1,
+      "per_class_metrics": {
+        "CONTRADICTED": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 43
+        },
+        "SUPPORTED": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 107
+        },
+        "UNSUPPORTED": {
+          "precision": 0.25,
+          "recall": 1.0,
+          "f1": 0.4,
+          "support": 50
+        }
+      },
+      "confusion_matrix": [
+        [
+          0,
+          0,
+          43
+        ],
+        [
+          0,
+          0,
+          107
+        ],
+        [
+          0,
+          0,
+          50
+        ]
+      ],
+      "labels": [
+        "CONTRADICTED",
+        "SUPPORTED",
+        "UNSUPPORTED"
+      ],
+      "retrieval_protocol": "Top-1 retrieved evidence is passed to the existing NLI verifier.",
+      "relevance_threshold": 0.5,
+      "gated_to_unsupported": 199
+    },
+    "absolute_delta": {
+      "accuracy": 0.01,
+      "macro_precision": -0.079,
+      "macro_recall": -0.0138,
+      "macro_f1": -0.0878,
+      "weighted_f1": -0.0527
+    }
+  },
+  "AVeriTeC": {
+    "dataset": "AVeriTeC",
+    "split": "dev",
+    "seed": 42,
+    "sample_count": 200,
+    "methodology": "Top-1 retrieval followed by the Stage 3 NLI verifier; improved run applies the production 0.50 relevance gate.",
+    "original": {
+      "experiment_name": "Stage7_AVeriTeC_Original_Retrieval_NLI",
+      "accuracy": 0.325,
+      "macro_precision": 0.3125,
+      "macro_recall": 0.3319,
+      "macro_f1": 0.2314,
+      "weighted_f1": 0.3853,
+      "per_class_metrics": {
+        "CONFLICTING_EVIDENCE": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 16
+        },
+        "CONTRADICTED": {
+          "precision": 0.75,
+          "recall": 0.3782,
+          "f1": 0.5028,
+          "support": 119
+        },
+        "SUPPORTED": {
+          "precision": 0.4286,
+          "recall": 0.2222,
+          "f1": 0.2927,
+          "support": 54
+        },
+        "UNSUPPORTED": {
+          "precision": 0.0714,
+          "recall": 0.7273,
+          "f1": 0.1301,
+          "support": 11
+        }
+      },
+      "confusion_matrix": [
+        [
+          0,
+          1,
+          1,
+          14
+        ],
+        [
+          0,
+          45,
+          14,
+          60
+        ],
+        [
+          0,
+          12,
+          12,
+          30
+        ],
+        [
+          0,
+          2,
+          1,
+          8
+        ]
+      ],
+      "labels": [
+        "CONFLICTING_EVIDENCE",
+        "CONTRADICTED",
+        "SUPPORTED",
+        "UNSUPPORTED"
+      ],
+      "retrieval_protocol": "Top-1 retrieved evidence is passed to the existing NLI verifier.",
+      "relevance_threshold": null,
+      "gated_to_unsupported": 0
+    },
+    "improved": {
+      "experiment_name": "Stage7_AVeriTeC_Improved_Retrieval_NLI",
+      "accuracy": 0.105,
+      "macro_precision": 0.2964,
+      "macro_recall": 0.2424,
+      "macro_f1": 0.088,
+      "weighted_f1": 0.11,
+      "per_class_metrics": {
+        "CONFLICTING_EVIDENCE": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 16
+        },
+        "CONTRADICTED": {
+          "precision": 0.7778,
+          "recall": 0.0588,
+          "f1": 0.1094,
+          "support": 119
+        },
+        "SUPPORTED": {
+          "precision": 0.3571,
+          "recall": 0.0926,
+          "f1": 0.1471,
+          "support": 54
+        },
+        "UNSUPPORTED": {
+          "precision": 0.0508,
+          "recall": 0.8182,
+          "f1": 0.0957,
+          "support": 11
+        }
+      },
+      "confusion_matrix": [
+        [
+          0,
+          0,
+          1,
+          15
+        ],
+        [
+          0,
+          7,
+          7,
+          105
+        ],
+        [
+          0,
+          1,
+          5,
+          48
+        ],
+        [
+          0,
+          1,
+          1,
+          9
+        ]
+      ],
+      "labels": [
+        "CONFLICTING_EVIDENCE",
+        "CONTRADICTED",
+        "SUPPORTED",
+        "UNSUPPORTED"
+      ],
+      "retrieval_protocol": "Top-1 retrieved evidence is passed to the existing NLI verifier.",
+      "relevance_threshold": 0.5,
+      "gated_to_unsupported": 164
+    },
+    "absolute_delta": {
+      "accuracy": -0.22,
+      "macro_precision": -0.0161,
+      "macro_recall": -0.0895,
+      "macro_f1": -0.1434,
+      "weighted_f1": -0.2753
+    }
+  }
+}

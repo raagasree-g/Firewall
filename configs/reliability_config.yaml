@@ -1,0 +1,11 @@
+version: "1.0"
+composite:
+  enabled: true
+  range: [0, 100]
+  weights:
+    support_rate: 0.35
+    evidence_coverage: 0.20
+    mean_verification_confidence: 0.15
+    contradiction_penalty: 0.15
+    unsupported_penalty: 0.10
+    severe_error_penalty: 0.05
