@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>VeriLLM | Reliability Dashboard</title>
+    <meta name="verillm-api-base" content="http://127.0.0.1:8000" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <div class="brand-block">
+          <div class="brand-mark">V</div>
+          <div>
+            <p class="eyebrow">RESEARCH PLATFORM</p>
+            <h1>VeriLLM</h1>
+          </div>
+        </div>
+
+        <nav class="nav-groups" aria-label="Main navigation">
+          <div class="nav-group">
+            <p class="nav-header">ANALYSIS</p>
+            <a class="nav-item active" href="#overview">Overview</a>
+            <a class="nav-item" href="#verify">Verify</a>
+            <a class="nav-item" href="#claims">Claims</a>
+            <a class="nav-item" href="#evidence">Evidence</a>
+            <a class="nav-item" href="#hallucination">Hallucination</a>
+            <a class="nav-item" href="#reliability">Reliability</a>
+            <a class="nav-item" href="#explainability">Explainability</a>
+          </div>
+
+          <div class="nav-group">
+            <p class="nav-header">EVALUATION</p>
+            <a class="nav-item" href="#retrieval">Retrieval</a>
+            <a class="nav-item" href="#nli">NLI Verification</a>
+            <a class="nav-item" href="#comparison">Model Comparison</a>
+            <a class="nav-item" href="#regression">Regression</a>
+            <a class="nav-item" href="#benchmarks">Benchmarks</a>
+            <a class="nav-item" href="#datasets">Datasets</a>
+            <a class="nav-item" href="#analysis">Error Analysis</a>
+          </div>
+
+          <div class="nav-group">
+            <p class="nav-header">SYSTEM</p>
+            <a class="nav-item" href="#pipeline">Pipeline</a>
+            <a class="nav-item" href="#api">API</a>
+            <a class="nav-item" href="#health">System Health</a>
+            <a class="nav-item" href="#settings">Settings</a>
+            <a class="nav-item" href="#docs">Documentation</a>
+          </div>
+        </nav>
+      </aside>
+
+      <main class="main-panel">
+        <header class="topbar">
+          <div>
+            <p class="eyebrow">MEASURE. EXPLAIN. IMPROVE</p>
+            <h2>LLM Reliability Intelligence</h2>
+          </div>
+          <div class="topbar-actions">
+            <button class="ghost-button">Export</button>
+            <button class="primary-button">Run evaluation</button>
+          </div>
+        </header>
+
+        <section id="overview" class="panel hero-panel">
+          <div class="hero-copy">
+            <p class="eyebrow product-tag">VERILLM</p>
+            <h3>Measure. Explain. Improve LLM reliability.</h3>
+            <p>
+              An explainable RAG + ML framework for detecting hallucinations,
+              verifying claims, and reducing silent model failure modes.
+            </p>
+          </div>
+          <div class="hero-summary">
+            <div class="badge-row">
+              <span class="status-dot"></span>
+              <span>System online</span>
+            </div>
+            <div class="summary-stack">
+              <div>
+                <strong id="summary-total-evaluations">0</strong>
+                <span>Total evaluations</span>
+              </div>
+              <div>
+                <strong id="summary-claims-analyzed">0</strong>
+                <span>Claims analyzed</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="metrics-grid" aria-label="Overview metrics">
+          <article class="metric-card"><span>Supported claims</span><strong id="metric-supported">0</strong></article>
+          <article class="metric-card"><span>Contradicted claims</span><strong id="metric-contradicted">0</strong></article>
+          <article class="metric-card"><span>Unsupported claims</span><strong id="metric-unsupported">0</strong></article>
+          <article class="metric-card"><span>High severity issues</span><strong id="metric-high-severity">0</strong></article>
+          <article class="metric-card"><span>Human review required</span><strong id="metric-human-review">0</strong></article>
+          <article class="metric-card"><span>Evidence retrieved</span><strong id="metric-evidence">0</strong></article>
+        </section>
+
+        <section id="verify" class="panel verify-panel">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">VERIFY</p>
+              <h3>Audit a model response</h3>
+            </div>
+            <span id="verification-mode" class="chip chip-muted">ready</span>
+          </div>
+
+          <form id="verify-form" class="verify-form">
+            <label for="response-input">Model response</label>
+            <textarea id="response-input" rows="8" placeholder="Paste the response you want VeriLLM to assess.">The Eiffel Tower is in Paris. OpenAI was founded in 2015. The Great Wall of China is across northern China.</textarea>
+            <div class="form-actions">
+              <button type="submit" class="primary-button">Analyze response</button>
+              <button type="button" id="load-demo" class="ghost-button">Load demo</button>
+            </div>
+          </form>
+        </section>
+
+        <section class="stats-grid">
+          <article id="reliability" class="panel">
+            <div class="section-heading">
+              <div>
+                <p class="eyebrow">RELIABILITY OVERVIEW</p>
+                <h3>Support rate</h3>
+              </div>
+            </div>
+            <div class="score-ring">
+              <div>
+                <strong id="support-rate">0%</strong>
+              </div>
+            </div>
+            <div class="bars">
+              <div class="bar-row"><span>Supported</span><div class="bar"><i id="bar-supported" style="width:0%"></i></div><b id="bar-supported-label">0</b></div>
+              <div class="bar-row"><span>Contradicted</span><div class="bar"><i id="bar-contradicted" style="width:0%"></i></div><b id="bar-contradicted-label">0</b></div>
+              <div class="bar-row"><span>Unsupported</span><div class="bar"><i id="bar-unsupported" style="width:0%"></i></div><b id="bar-unsupported-label">0</b></div>
+            </div>
+          </article>
+
+          <article id="hallucination" class="panel">
+            <div class="section-heading">
+              <div>
+                <p class="eyebrow">HALLUCINATION</p>
+                <h3>Severity distribution</h3>
+              </div>
+            </div>
+            <div class="mini-legend">
+              <span><i class="dot low"></i>Low</span>
+              <span><i class="dot medium"></i>Medium</span>
+              <span><i class="dot high"></i>High</span>
+              <span><i class="dot critical"></i>Critical</span>
+            </div>
+            <div class="severity-stack">
+              <div class="severity-row"><span>Low</span><div class="severity-bar"><i id="sev-low" style="width:0%"></i></div><b id="sev-low-label">0</b></div>
+              <div class="severity-row"><span>Medium</span><div class="severity-bar"><i id="sev-medium" style="width:0%"></i></div><b id="sev-medium-label">0</b></div>
+              <div class="severity-row"><span>High</span><div class="severity-bar"><i id="sev-high" style="width:0%"></i></div><b id="sev-high-label">0</b></div>
+              <div class="severity-row"><span>Critical</span><div class="severity-bar"><i id="sev-critical" style="width:0%"></i></div><b id="sev-critical-label">0</b></div>
+            </div>
+          </article>
+        </section>
+
+        <section id="claims" class="panel results-panel">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">CLAIMS</p>
+              <h3>Claim-level verification</h3>
+            </div>
+          </div>
+          <div id="claims-container" class="claim-list"></div>
+        </section>
+
+        <section id="evidence" class="panel results-panel">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">EVIDENCE</p>
+              <h3>Retrieved support and contradiction signals</h3>
+            </div>
+          </div>
+          <div id="evidence-container" class="evidence-list"></div>
+        </section>
+      </main>
+    </div>
+
+    <script src="./app.js?v=2"></script>
+  </body>
+</html>

@@ -209,6 +209,31 @@ retrieves evidence using robust TF-IDF, gates evidence below relevance 0.50,
 verifies usable evidence with NLI, and returns explanations, taxonomy labels,
 severity, review flags, and reliability-oriented outputs.
 
+## Running the VeriLLM product UI
+
+The project includes a lightweight research dashboard that connects to the
+existing VeriLLM analysis pipeline without duplicating the ML logic in the
+frontend.
+
+Start the API and UI locally:
+
+```powershell
+# from the project root
+.\.venv\Scripts\python.exe -m uvicorn backend.app:app --host 127.0.0.1 --port 8000 --reload
+```
+
+Then open:
+
+```text
+http://127.0.0.1:8000/
+```
+
+The frontend posts to `/api/verify`, which runs the live VeriLLM pipeline and
+returns claim-level evidence, NLI verdicts, severity, and reliability summary
+cards. If the full offline NLI model cache is unavailable, the backend silently
+falls back to a lightweight local verification mode so the dashboard remains
+functional.
+
 ## Current limitations
 
 The retriever is lexical and the NLI model is frozen. The 0.50 relevance gate
