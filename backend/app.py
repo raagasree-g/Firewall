@@ -2,12 +2,13 @@ from __future__ import annotations
 
 import json
 import os
-import re
 import sys
+from datetime import datetime, timezone
+from functools import lru_cache
 from pathlib import Path
-from typing import Any, Dict, Iterable, List
+from typing import Any, Dict, List
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
@@ -17,9 +18,10 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-from src.retrieval import TfidfEvidenceRetriever, load_processed_evidence
+from backend.dashboard_data import page_data
+from src.retrieval import RobustTfidfEvidenceRetriever, load_processed_evidence
 from src.verillm_pipeline import analyze_response
-from src.verification.nli_verifier import NLIVerifier
+from src.verification.nli_verifier import NLIVerifier, resolve_offline_model
 
 app = FastAPI(
     title="VeriLLM",
@@ -45,89 +47,67 @@ FRONTEND_DIR = PROJECT_ROOT / "frontend"
 app.mount("/assets", StaticFiles(directory=str(FRONTEND_DIR)), name="assets")
 
 
+class EvidenceInput(BaseModel):
+    evidence_id: str = Field(..., min_length=1)
+    evidence: str = Field(..., min_length=1)
+
+
 class VerifyRequest(BaseModel):
     response: str = Field(..., min_length=1, description="LLM response to audit.")
-    evidence: List[Dict[str, str]] | None = Field(default=None, description="Optional evidence corpus.")
+    evidence: List[EvidenceInput] | None = Field(default=None, description="Optional evidence corpus.")
+    top_k: int = Field(default=3, ge=1, le=10)
+    min_retrieval_score: float = Field(default=0.50, ge=0, le=1)
+    low_confidence_review_threshold: float = Field(default=0.50, ge=0, le=1)
+    model_name: str | None = None
+    application: str | None = None
+    version: str | None = None
 
 
-class OfflineFallbackVerifier:
-    """Gracefully support UI use without the full NLI model cache."""
-
-    @staticmethod
-    def _score_pair(claim: str, evidence: str) -> tuple[str, float]:
-        claim_text = (claim or "").strip().lower()
-        evidence_text = (evidence or "").strip().lower()
-        if not evidence_text:
-            return "UNSUPPORTED", 0.12
-
-        if claim_text in evidence_text:
-            return "SUPPORTED", 0.9
-
-        if any(token in evidence_text for token in ("not", "never", "cannot", "denied", "refuted", "false", "incorrect")):
-            return "CONTRADICTED", 0.76
-
-        if any(token in evidence_text for token in ("likely", "possibly", "probably", "may", "reportedly")):
-            return "UNSUPPORTED", 0.46
-
-        support_tokens = set(re.findall(r"\b[a-z]+\b", claim_text))
-        evidence_tokens = set(re.findall(r"\b[a-z]+\b", evidence_text))
-        overlap = len(support_tokens.intersection(evidence_tokens))
-        if overlap:
-            return "SUPPORTED", min(0.8, 0.55 + (overlap * 0.08))
-        return "UNSUPPORTED", 0.32
-
-    def predict_many(self, records: Iterable[Dict[str, Any]]) -> List[Dict[str, Any]]:
-        outputs: List[Dict[str, Any]] = []
-        for record in records:
-            claim = str(record.get("claim", "")).strip()
-            evidence = str(record.get("evidence", "")).strip()
-            verdict, confidence = self._score_pair(claim, evidence)
-            outputs.append(
-                {
-                    "claim": claim,
-                    "evidence": evidence,
-                    "nli_label": verdict,
-                    "verdict": verdict,
-                    "confidence": float(confidence),
-                }
-            )
-        return outputs
-
-
+@lru_cache(maxsize=1)
 def _resolve_processed_corpus() -> List[Dict[str, str]]:
-    candidates = [
-        PROJECT_ROOT / "datasets" / "processed" / "AVeriTeC" / "averitec_normalized.jsonl",
-        PROJECT_ROOT / "datasets" / "processed" / "FEVER" / "fever_normalized.jsonl",
-        PROJECT_ROOT / "datasets" / "processed" / "HaluEval" / "halueval_normalized.jsonl",
-        PROJECT_ROOT / "datasets" / "processed" / "RAGTruth" / "ragtruth_normalized.jsonl",
-    ]
-    files = [path for path in candidates if path.exists()]
-    if files:
-        try:
-            return load_processed_evidence(files, max_documents=250)
-        except Exception:
-            pass
-    return [
-        {"evidence_id": "earth", "evidence": "Earth is the third planet from the Sun in our solar system."},
-        {"evidence_id": "paris", "evidence": "Paris is the capital city of France."},
-        {"evidence_id": "germany", "evidence": "Berlin is the capital city of Germany."},
-        {"evidence_id": "mars", "evidence": "Mars is a cold desert planet and is known as the Red Planet."},
-        {"evidence_id": "wall", "evidence": "The Great Wall of China is a series of fortifications built across northern China."},
-        {"evidence_id": "eiffel", "evidence": "The Eiffel Tower is a landmark in Paris, France."},
-        {"evidence_id": "company", "evidence": "OpenAI is an AI research and deployment company founded in 2015."},
-    ]
+    corpus_path = PROJECT_ROOT / "datasets" / "processed" / "AVeriTeC" / "averitec_normalized.jsonl"
+    if not corpus_path.is_file():
+        raise FileNotFoundError(
+            "Processed AVeriTeC evidence is not available at "
+            "datasets/processed/AVeriTeC/averitec_normalized.jsonl."
+        )
+    return load_processed_evidence([corpus_path])
 
 
-def _run_analysis(response: str, corpus: List[Dict[str, str]]) -> Dict[str, Any]:
-    try:
-        verifier = NLIVerifier()
-        mode = "nli_model"
-    except Exception:
-        verifier = OfflineFallbackVerifier()
-        mode = "offline_fallback"
+@lru_cache(maxsize=1)
+def _load_verifier() -> NLIVerifier:
+    return NLIVerifier()
 
-    result = analyze_response(response, corpus, top_k=2, verifier=verifier)
-    result["mode"] = mode
+
+@lru_cache(maxsize=1)
+def _runtime_components() -> tuple[RobustTfidfEvidenceRetriever, NLIVerifier]:
+    corpus = _resolve_processed_corpus()
+    return RobustTfidfEvidenceRetriever(corpus), _load_verifier()
+
+
+def _run_analysis(
+    response: str,
+    *,
+    evidence: List[Dict[str, str]] | None = None,
+    top_k: int = 3,
+    min_retrieval_score: float = 0.50,
+    low_confidence_review_threshold: float = 0.50,
+) -> Dict[str, Any]:
+    if evidence is None:
+        retriever, verifier = _runtime_components()
+    else:
+        retriever = RobustTfidfEvidenceRetriever(evidence)
+        verifier = _load_verifier()
+    result = analyze_response(
+        response,
+        evidence if evidence is not None else _resolve_processed_corpus(),
+        top_k=top_k,
+        min_retrieval_score=min_retrieval_score,
+        retriever=retriever,
+        verifier=verifier,
+        review_config={"low_confidence": low_confidence_review_threshold},
+    )
+    result["mode"] = "nli_model"
     return result
 
 
@@ -147,7 +127,12 @@ def overview() -> Dict[str, Any]:
         "The Eiffel Tower is in Paris. OpenAI was founded in 2015. "
         "The Great Wall of China is a series of fortifications across northern China."
     )
-    result = _run_analysis(sample_response, _resolve_processed_corpus())
+    try:
+        result = _run_analysis(sample_response)
+    except FileNotFoundError as error:
+        raise HTTPException(status_code=503, detail=str(error)) from error
+    except (RuntimeError, OSError, ValueError, ImportError) as error:
+        raise HTTPException(status_code=503, detail=f"Live verification is unavailable: {error}") from error
     return {
         "summary": result["summary"],
         "claims": result["claims"],
@@ -156,22 +141,86 @@ def overview() -> Dict[str, Any]:
     }
 
 
+@app.get("/api/page/{page}")
+def dashboard_page(
+    page: str,
+    dataset: str | None = None,
+    model: str | None = None,
+    limit: int = Query(default=200, ge=1, le=500),
+) -> Dict[str, Any]:
+    try:
+        return page_data(page, dataset=dataset, model=model, limit=limit)
+    except (OSError, ValueError, json.JSONDecodeError) as error:
+        raise HTTPException(status_code=500, detail=f"Unable to load {page} page data: {error}") from error
+
+
 @app.post("/api/verify")
 def verify(payload: VerifyRequest) -> Dict[str, Any]:
     response = (payload.response or "").strip()
     if not response:
         raise HTTPException(status_code=400, detail="A response to analyze is required.")
 
-    corpus = payload.evidence or _resolve_processed_corpus()
-    if not corpus:
-        raise HTTPException(status_code=400, detail="No evidence corpus is available for verification.")
-
-    result = _run_analysis(response, corpus)
+    try:
+        result = _run_analysis(
+            response,
+            evidence=[item.model_dump() for item in payload.evidence] if payload.evidence is not None else None,
+            top_k=payload.top_k,
+            min_retrieval_score=payload.min_retrieval_score,
+            low_confidence_review_threshold=payload.low_confidence_review_threshold,
+        )
+    except FileNotFoundError as error:
+        raise HTTPException(status_code=503, detail=str(error)) from error
+    except (RuntimeError, OSError, ValueError, ImportError) as error:
+        raise HTTPException(status_code=503, detail=f"Live verification is unavailable: {error}") from error
     return {
         "summary": result["summary"],
         "claims": result["claims"],
         "response": result["response"],
         "mode": result["mode"],
+        "metadata": {
+            "model_name": payload.model_name,
+            "application": payload.application,
+            "version": payload.version,
+            "top_k": payload.top_k,
+            "min_retrieval_score": payload.min_retrieval_score,
+        },
+    }
+
+
+@app.get("/api/health")
+def detailed_health() -> Dict[str, Any]:
+    corpus_path = PROJECT_ROOT / "datasets" / "processed" / "AVeriTeC" / "averitec_normalized.jsonl"
+    nli_config_path = PROJECT_ROOT / "configs" / "verification_config.yaml"
+    model_name = "unknown"
+    if nli_config_path.is_file():
+        import yaml
+
+        with nli_config_path.open(encoding="utf-8") as stream:
+            config = yaml.safe_load(stream) or {}
+        model_name = config.get("nli_model", {}).get("name", "unknown")
+    model_path = Path(resolve_offline_model(model_name)) if model_name != "unknown" else None
+    model_available = bool(model_path and model_path.is_dir())
+    corpus_available = corpus_path.is_file()
+    checks = {
+        "backend": "ONLINE",
+        "pipeline": "ONLINE",
+        "retriever": "ONLINE" if corpus_available else "OFFLINE",
+        "processed_evidence": {
+            "status": "AVAILABLE" if corpus_available else "DATA NOT AVAILABLE",
+            "path": str(corpus_path.relative_to(PROJECT_ROOT)),
+        },
+        "nli_model": {
+            "status": "AVAILABLE" if model_available else "WARNING",
+            "name": model_name,
+            "local_cache_path": str(model_path) if model_available else None,
+            "detail": None if model_available else "No local model snapshot found; local-only inference cannot start.",
+        },
+    }
+    has_offline_dependencies = corpus_available and model_available
+    return {
+        "status": "ONLINE" if has_offline_dependencies else "WARNING",
+        "checks": checks,
+        "checked_at": datetime.now(timezone.utc).isoformat(),
     }
 
 

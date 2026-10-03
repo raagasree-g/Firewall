@@ -11,11 +11,11 @@ from src.scoring.severity import assess_severity
 from src.scoring.review_flags import review_flags
 
 
-def _verify_claim(claim_record: Dict[str, Any], retriever: TfidfEvidenceRetriever, verifier: Any, top_k: int, min_retrieval_score: float) -> Dict[str, Any]:
+def _verify_claim(claim_record: Dict[str, Any], retriever: TfidfEvidenceRetriever, verifier: Any, top_k: int, min_retrieval_score: float, review_config: Optional[Dict[str, float]] = None) -> Dict[str, Any]:
     evidence = retriever.retrieve(claim_record["claim"], top_k=top_k)
     usable = [item for item in evidence if item["score"] >= min_retrieval_score]
     if not usable:
-        verdict, confidence, conflicting = "UNSUPPORTED", 0.0, False
+        verdict, confidence, nli_confidence, nli_label, conflicting = "UNSUPPORTED", None, None, None, False
     else:
         predictions = verifier.predict_many([{"claim": claim_record["claim"], "evidence": item["evidence"]} for item in usable])
         weighted = [(prediction, item, prediction["confidence"] * item["score"]) for prediction, item in zip(predictions, usable)]
@@ -34,23 +34,30 @@ def _verify_claim(claim_record: Dict[str, Any], retriever: TfidfEvidenceRetrieve
             prediction, _, weight = max(weighted, key=lambda entry: entry[2])
             verdict, confidence = "CONTRADICTED", float(weight)
         elif conflicting:
+            prediction = max(weighted, key=lambda entry: entry[2])[0]
             verdict, confidence = "UNSUPPORTED", max(weight for _, _, weight in weighted)
         else:
             prediction, _, weight = max(weighted, key=lambda entry: entry[2])
             verdict, confidence = prediction["verdict"], float(weight)
+        nli_confidence = float(prediction["confidence"])
+        nli_label = prediction.get("nli_label")
     taxonomy = classify_hallucination(claim_record["claim"], verdict, usable[0]["evidence"] if usable else "")
-    severity = assess_severity(verdict, confidence, taxonomy, evidence[0]["score"] if evidence else 0.0)
-    review = review_flags(confidence, evidence[0]["score"] if evidence else 0.0, severity["severity"], conflicting=conflicting)
+    risk_confidence = confidence if confidence is not None else 0.0
+    severity = assess_severity(verdict, risk_confidence, taxonomy, evidence[0]["score"] if evidence else 0.0)
+    review = review_flags(risk_confidence, evidence[0]["score"] if evidence else 0.0, severity["severity"], conflicting=conflicting, config=review_config, confidence_available=confidence is not None)
     return {
         "claim_id": claim_record["claim_id"], "claim": claim_record["claim"],
-        "verdict": verdict, "confidence": float(confidence), "evidence": evidence,
+        "verdict": verdict, "confidence": confidence, "nli_confidence": nli_confidence,
+        "nli_label": nli_label, "nli_evaluated": bool(usable),
+        "verification_status": "VERIFIED" if usable else "NO_EVIDENCE_MET_RELEVANCE_THRESHOLD",
+        "min_retrieval_score": min_retrieval_score, "evidence": evidence,
         "retrieval_score": float(evidence[0]["score"]) if evidence else 0.0,
         "explanation": build_explanation(verdict, evidence, conflicting=conflicting),
         "hallucination_type": taxonomy, **severity, **review,
     }
 
 
-def analyze_response(response: str, evidence_corpus: List[Dict[str, str]], *, top_k: int = 3, min_retrieval_score: float = 0.50, extractor: Optional[Any] = None, retriever: Optional[Any] = None, verifier: Optional[Any] = None) -> Dict[str, Any]:
+def analyze_response(response: str, evidence_corpus: List[Dict[str, str]], *, top_k: int = 3, min_retrieval_score: float = 0.50, extractor: Optional[Any] = None, retriever: Optional[Any] = None, verifier: Optional[Any] = None, review_config: Optional[Dict[str, float]] = None) -> Dict[str, Any]:
     """Audit response claims using local retrieval and the existing NLI verifier.
 
     ``verifier`` is injectable for tests; normal use loads ``NLIVerifier``.
@@ -59,7 +66,7 @@ def analyze_response(response: str, evidence_corpus: List[Dict[str, str]], *, to
     extractor = extractor or SentenceClaimExtractor()
     retriever = retriever or RobustTfidfEvidenceRetriever(evidence_corpus)
     verifier = verifier or NLIVerifier()
-    claims = [_verify_claim(claim, retriever, verifier, top_k, min_retrieval_score) for claim in extractor.extract(response)]
+    claims = [_verify_claim(claim, retriever, verifier, top_k, min_retrieval_score, review_config) for claim in extractor.extract(response)]
     summary = {"total_claims": len(claims), "supported": 0, "contradicted": 0, "unsupported": 0, "high_severity_count": 0, "human_review_count": 0}
     for claim in claims:
         summary[claim["verdict"].lower()] += 1

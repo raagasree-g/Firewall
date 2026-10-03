@@ -18,6 +18,23 @@ class StubVerifier:
         return [{"claim": r["claim"], "evidence": r["evidence"], "nli_label": "ENTAILMENT", "verdict": "SUPPORTED", "confidence": 0.9} for r in records]
 
 
+class FixedRetriever:
+    def __init__(self, score):
+        self.score = score
+
+    def retrieve(self, claim, top_k=3):
+        return [{"evidence_id": "fixed", "evidence": "Evidence text.", "score": self.score}][:top_k]
+
+
+class RecordingVerifier(StubVerifier):
+    def __init__(self):
+        self.calls = []
+
+    def predict_many(self, records):
+        self.calls.extend(records)
+        return super().predict_many(records)
+
+
 def test_claim_extraction_handles_sentences_empty_and_duplicates():
     extractor = SentenceClaimExtractor()
     assert extractor.extract("") == []
@@ -62,6 +79,41 @@ def test_end_to_end_pipeline_schema_with_injected_verifier():
     claim = result["claims"][0]
     assert {"claim_id", "claim", "verdict", "confidence", "evidence", "retrieval_score", "explanation", "hallucination_type", "severity", "severity_reasons", "needs_human_review", "review_reasons"} <= set(claim)
     assert json.loads(json.dumps(result))["claims"][0]["verdict"] == "SUPPORTED"
+
+
+def test_relevance_gate_does_not_report_unrun_nli_as_zero_confidence():
+    verifier = RecordingVerifier()
+    result = analyze_response(
+        "A factual claim.",
+        [{"evidence_id": "fixed", "evidence": "Evidence text."}],
+        retriever=FixedRetriever(0.49),
+        verifier=verifier,
+        min_retrieval_score=0.50,
+    )
+
+    claim = result["claims"][0]
+    assert claim["verdict"] == "UNSUPPORTED"
+    assert claim["confidence"] is None
+    assert claim["nli_confidence"] is None
+    assert claim["nli_evaluated"] is False
+    assert claim["verification_status"] == "NO_EVIDENCE_MET_RELEVANCE_THRESHOLD"
+    assert verifier.calls == []
+    assert claim["review_reasons"] == ["NLI verification was not run because no evidence met the retrieval threshold."]
+
+
+def test_pipeline_reports_nli_probability_separately_from_retrieval_weighted_score():
+    result = analyze_response(
+        "A factual claim.",
+        [{"evidence_id": "fixed", "evidence": "Evidence text."}],
+        retriever=FixedRetriever(0.8),
+        verifier=StubVerifier(),
+        min_retrieval_score=0.50,
+    )
+
+    claim = result["claims"][0]
+    assert claim["nli_evaluated"] is True
+    assert claim["nli_confidence"] == pytest.approx(0.9)
+    assert claim["confidence"] == pytest.approx(0.72)
 
 
 def test_retrieval_metrics_are_deterministic_and_define_failures():
